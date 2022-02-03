@@ -45,12 +45,14 @@ router.route('/register').post(async (request, response) => {
         email,
         password: hash,
       });
-      const saveSuccess: Promise<Document<unknown, any, UserType>> =
-        newUser.save();
-      if (saveSuccess)
-        return response.status(201).json({
-          message: `Player ${name} has been created, you can log in with you credentials`,
-        });
+      newUser.save().then((user) => {
+        if (user)
+          return response
+            .status(201)
+            .json({
+              message: `Player ${name} has been created, you can log in with your credentials`,
+            });
+      });
     }
   } catch (error: any) {
     console.log(error);
