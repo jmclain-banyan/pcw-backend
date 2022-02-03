@@ -6,15 +6,21 @@ import * as bcrypt from 'bcrypt';
 
 const router: Router = express.Router();
 
-type PostBody = {
+type RegisterPostBody = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
 };
 
+type LoginPostBody = {
+  email: string;
+  password: string;
+};
+
 router.route('/register').post(async (request, response) => {
-  const { name, email, password, confirmPassword }: PostBody = request.body;
+  const { name, email, password, confirmPassword }: RegisterPostBody =
+    request.body;
   const passRegEx: RegExp =
     /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/g;
   try {
@@ -47,12 +53,34 @@ router.route('/register').post(async (request, response) => {
       });
       newUser.save().then((user) => {
         if (user)
-          return response
-            .status(201)
-            .json({
-              message: `Player ${name} has been created, you can log in with your credentials`,
-            });
+          return response.status(201).json({
+            message: `Player ${name} has been created, you can log in with your credentials`,
+          });
       });
+    }
+  } catch (error: any) {
+    console.log(error);
+    return response.status(500).json({ error });
+  }
+});
+
+router.route('/login').post(async (request, response) => {
+  const { email, password }: LoginPostBody = request.body;
+  if (!email || !password)
+    return response.status(400).json({ message: 'Please enter all fields' });
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return response.status(400).json({ message: 'User does not exist' });
+    } else {
+      const isMatch: boolean = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return response.status(400).json({ message: 'Passwords do not match' });
+      else
+        return response.status(200).json({
+          message: 'Login Successful',
+          user: { id: user._id, name: user.name, email: user.email },
+        });
     }
   } catch (error: any) {
     console.log(error);
