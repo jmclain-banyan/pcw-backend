@@ -1,5 +1,5 @@
-import { Schema, Model, model } from "mongoose";
-import User from "../types/UserType";
+import { Schema, Model, model } from 'mongoose';
+import User from '../types/UserType';
 
 const UserSchema = new Schema<User>({
   name: { type: String, required: true },
@@ -7,8 +7,8 @@ const UserSchema = new Schema<User>({
   password: { type: String, required: true },
   isAdmin: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
-//   playRecord: { type: Array },
+  //   playRecord: { type: Array },
   registerDate: { type: Date, default: Date.now },
 });
 
-export const UserModel: Model<User> = model("User", UserSchema);
+export const UserModel: Model<User> = model('User', UserSchema);
